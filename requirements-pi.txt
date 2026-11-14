@@ -1,0 +1,4 @@
+-r requirements.txt
+gpiozero>=2.0,<3
+adafruit-blinka>=8.0,<10
+adafruit-circuitpython-dht>=4.0,<5

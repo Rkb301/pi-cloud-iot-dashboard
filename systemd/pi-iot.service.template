@@ -1,0 +1,19 @@
+[Unit]
+Description=Local Raspberry Pi IoT dashboard and cloud gateway
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+User=REPLACE_PI_USER
+WorkingDirectory=REPLACE_ABSOLUTE_PROJECT_DIR
+ExecStart=REPLACE_ABSOLUTE_PROJECT_DIR/.venv/bin/python REPLACE_ABSOLUTE_PROJECT_DIR/app.py
+Restart=on-failure
+RestartSec=8
+NoNewPrivileges=true
+UMask=0077
+TimeoutStopSec=25
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target

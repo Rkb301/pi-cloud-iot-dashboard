@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BITS Smart IoT Lab | Raspberry Pi</title><style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #080c14; color: #f1f5f9; min-height: 100vh;
+      padding: 20px 14px; display: flex; flex-direction: column; align-items: center;
+    }
+    .wrap { width: 100%; max-width: 720px; display: flex; flex-direction: column; gap: 14px; }
+
+    /* Header Card */
+    .header {
+      background: rgba(17, 24, 39, 0.85); backdrop-filter: blur(12px);
+      border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 16px;
+      padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+    .title-group h1 {
+      font-size: 1.25rem; font-weight: 800; letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .title-group p { font-size: 0.78rem; color: #94a3b8; margin-top: 3px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px;
+      border-radius: 99px; font-size: 0.75rem; font-weight: 700;
+      background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399;
+    }
+    .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #34d399; box-shadow: 0 0 8px #34d399; animation: pulse-dot 1.5s infinite;
+    }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.85); } }
+
+    /* Master Bar */
+    .master-bar { display: flex; gap: 10px; }
+    .btn-master {
+      flex: 1; padding: 11px 14px; font-size: 0.84rem; font-weight: 800;
+      letter-spacing: 0.04em; border: none; border-radius: 10px; cursor: pointer;
+      transition: all 0.15s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .btn-master:active { transform: scale(0.97); }
+    .btn-master-on {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      color: white; border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+    .btn-master-on:hover { box-shadow: 0 0 16px rgba(16, 185, 129, 0.4); }
+    .btn-master-off { background: #1f2937; color: #e2e8f0; border: 1px solid #374151; }
+    .btn-master-off:hover { background: #374151; }
+
+    /* Grid Layout */
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+
+    /* Cards */
+    .card {
+      background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(8px);
+      border: 1px solid rgba(31, 41, 55, 0.9); border-radius: 14px;
+      padding: 16px; display: flex; flex-direction: column; gap: 10px;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .card.full { grid-column: 1 / -1; }
+    .card-top { display: flex; justify-content: space-between; align-items: center; }
+    .card-title {
+      font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: #94a3b8;
+    }
+    .card-val { font-size: 1.45rem; font-weight: 800; color: #f8fafc; }
+
+    /* Buttons */
+    .btn-row { display: flex; gap: 6px; margin-top: 4px; }
+    button.act-btn {
+      flex: 1; padding: 10px 8px; border: none; border-radius: 8px;
+      cursor: pointer; font-weight: 700; font-size: 0.8rem; transition: all 0.15s;
+    }
+    button.act-btn:active { transform: scale(0.96); }
+    .btn-green { background: #059669; color: white; }
+    .btn-green:hover { background: #10b981; }
+    .btn-slate { background: #374151; color: #cbd5e1; }
+    .btn-slate:hover { background: #4b5563; }
+    .btn-indigo { background: #4f46e5; color: white; }
+    .btn-indigo:hover { background: #6366f1; }
+
+    /* Status Pills */
+    .pill {
+      display: inline-block; padding: 4px 10px; border-radius: 8px;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.04em;
+    }
+    .pill-safe { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35); }
+    .pill-off { background: rgba(75, 85, 99, 0.25); color: #94a3b8; border: 1px solid rgba(75, 85, 99, 0.4); }
+    .pill-blue { background: rgba(56, 189, 248, 0.18); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+    .pill-warn { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .pill-alert {
+      background: rgba(239, 68, 68, 0.2); color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.5); animation: pulse-alert 1s infinite alternate;
+    }
+    @keyframes pulse-alert { from { opacity: 1; transform: scale(1); } to { opacity: 0.6; transform: scale(0.97); } }
+
+    /* Chart Section */
+    .chart-container { position: relative; width: 100%; height: 210px; margin-top: 4px; }
+    canvas#telemetryChart {
+      width: 100%; height: 100%; border-radius: 10px;
+      background: #030712; border: 1px solid #1f2937;
+    }
+    .chart-legend {
+      display: flex; gap: 16px; font-size: 0.75rem; font-weight: 700;
+      justify-content: flex-end; align-items: center;
+    }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+    .legend-color { width: 10px; height: 10px; border-radius: 3px; }
+
+    .footer { text-align: center; font-size: 0.72rem; color: #64748b; margin-top: 8px; line-height: 1.6; }
+
+input {background:#0b1220; color:#e2e8f0; border:1px solid #475569; border-radius:8px; padding:10px;}
+.mini-note{font-size:.75rem;color:#94a3b8;line-height:1.4}
+label{font-size:.8rem;color:#cbd5e1}
+.header .badge{min-width:120px;justify-content:center}
+.warn-banner{display:none;padding:10px 14px;color:#fed7aa;background:#431407;border:1px solid #9a3412;border-radius:10px;font-size:.8rem}
+button:disabled{opacity:.45;cursor:not-allowed}
+.header{flex-wrap:wrap;gap:10px}
+#notice{min-height:18px;color:#fbbf24;font-size:.78rem}
+</style></head>
+<body><div class="wrap">
+<header class="header"><div class="title-group"><h1>⚡ Smart IoT Automation</h1><p>Raspberry Pi • Local telemetry • Adafruit IO</p></div><div class="badge" id="statusBadge">CONNECTING</div></header>
+<div class="warn-banner" id="mockWarn">SIMULATION MODE: Values and LED responses are simulated, not physical readings or actuation.</div>
+<div class="master-bar"><button class="btn-master btn-master-on" onclick="setBoth(true)">⚡ BOTH ON</button><button class="btn-master btn-master-off" onclick="setBoth(false)">⭕ BOTH OFF</button></div>
+<div class="grid">
+ <section class="card" id="led1Card"><div class="card-top"><span class="card-title">Red LED 1 • GPIO5</span><span class="pill pill-off" id="led1Pill">OFF</span></div><div class="card-val" id="led1Val">OFF</div><div class="btn-row"><button class="act-btn btn-green" onclick="setLED('led1',true)">ON</button><button class="act-btn btn-slate" onclick="setLED('led1',false)">OFF</button><button class="act-btn btn-indigo" onclick="toggleLED('led1')">TOGGLE</button></div></section>
+ <section class="card" id="led2Card"><div class="card-top"><span class="card-title">Blue LED 2 • GPIO6</span><span class="pill pill-off" id="led2Pill">OFF</span></div><div class="card-val" id="led2Val">OFF</div><div class="btn-row"><button class="act-btn btn-green" onclick="setLED('led2',true)">ON</button><button class="act-btn btn-slate" onclick="setLED('led2',false)">OFF</button><button class="act-btn btn-indigo" onclick="toggleLED('led2')">TOGGLE</button></div></section>
+ <section class="card"><div class="card-top"><span class="card-title">IR obstacle • GPIO17</span><span class="pill pill-warn" id="irPill">WAITING</span></div><div class="card-val" id="irVal">—</div></section>
+ <section class="card"><div class="card-top"><span class="card-title">Flame IR module • GPIO27</span><span class="pill pill-warn" id="flamePill">WAITING</span></div><div class="card-val" id="flameVal">—</div><p class="mini-note">Educational indicator only, not a certified fire alarm.</p></section>
+ <section class="card"><div class="card-top"><span class="card-title">Temperature • DHT22 GPIO22</span><span class="pill pill-warn" id="dhtPill">WAITING</span></div><div class="card-val" id="tempVal">— °C</div></section>
+ <section class="card"><div class="card-top"><span class="card-title">Humidity • DHT22 GPIO22</span></div><div class="card-val" id="humVal">— %</div></section>
+ <section class="card full"><div class="card-top"><span class="card-title">📈 Live temperature / humidity history</span><span class="mini-note">Rolling browser session</span></div><div class="chart-container"><canvas id="telemetryChart" role="img" aria-label="Temperature and humidity chart"></canvas></div><div class="chart-legend"><span class="legend-item">🟡 Temperature °C</span><span class="legend-item">🔵 Humidity %</span></div></section>
+ <section class="card full"><div class="card-top"><span class="card-title">☁️ Gateway status</span><span class="pill pill-off" id="cloudPill">CLOUD OFFLINE</span></div><div class="mini-note" id="gpioDetail">BCM pin map: loading…</div><div class="mini-note" id="freshDetail">DHT age: waiting…</div><div class="mini-note" id="thingspeakDetail">ThingSpeak: waiting…</div><div class="mini-note">Local HTTP control is token-protected. Adafruit IO uses outbound MQTT/TLS. ThingSpeak uploads only when explicitly enabled on the Pi; relay, ultrasonic and MariaDB are not enabled in this build.</div></section>
+ <section class="card full"><div class="card-top"><span class="card-title">🔒 Local LED control credential</span></div><label for="token">DASHBOARD_TOKEN (configured in server .env)</label><div class="btn-row"><input id="token" type="password" placeholder="Paste local control token" autocomplete="off" style="flex:1;min-width:150px"/><button class="act-btn btn-indigo" style="flex:0 0 auto" onclick="saveToken()">Use in this tab</button></div><p id="notice" role="status"></p><p class="mini-note">Token remains in this tab's session storage. Do not expose this unauthenticated HTTP dashboard on campus Wi-Fi.</p></section>
+</div>
+<footer class="footer"><span id="lastUpdate">Waiting for data…</span> • BITS IoT lab • user-provided UI adapted for the new gateway</footer>
+</div>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+let current = {}, online = false, busy = false;
+let seriesT = [], seriesH = [];
+const MAX_POINTS = 60;
+$('token').value = sessionStorage.getItem('pi-iot-token') || '';
+function saveToken(){sessionStorage.setItem('pi-iot-token',$('token').value);$('notice').textContent='Credential stored for this browser tab.';}
+function badge(id,on,yes,no){let e=$(id);e.className='pill '+(on?'pill-alert':'pill-safe');e.textContent=on?yes:no;}
+function controls(){document.querySelectorAll('.master-bar button, #led1Card button, #led2Card button').forEach(b=>b.disabled=!online||busy);}
+function show(d){
+ current=d;online=true;controls();
+ $('statusBadge').textContent=d.mock_mode?'SIMULATION':(d.inputs_stale?'SENSORS UNAVAILABLE':'GPIO ACTIVE');
+ $('mockWarn').style.display=d.mock_mode?'block':'none';
+ for(let key of ['led1','led2']) {$(key+'Val').textContent=d[key]?'ON':'OFF';let e=$(key+'Pill');e.textContent=d[key]?'ON':'OFF';e.className='pill '+(d[key]?'pill-blue':'pill-off');}
+ function detection(v, id, pill, alertText, clearText){
+    $(id).textContent=v===null?'UNAVAILABLE':(v?alertText:clearText);
+    let b=$(pill); b.textContent=v===null?'UNKNOWN':v?'DETECTED':'CLEAR';b.className='pill '+(v===null?'pill-warn':v?'pill-alert':'pill-safe');
+ }
+ detection(d.inputs_stale?null:d.ir_detected,'irVal','irPill','OBSTACLE DETECTED','Path clear');
+ detection(d.inputs_stale?null:d.flame_detected,'flameVal','flamePill','FLAME SENSOR TRIGGERED','Not triggered');
+ $('tempVal').textContent=typeof d.temperature==='number'?d.temperature.toFixed(1)+' °C':'— °C';
+ $('humVal').textContent=typeof d.humidity==='number'?d.humidity.toFixed(1)+' %':'— %';
+ $('dhtPill').textContent=d.dht_stale?'STALE':d.dht_error?'RETRYING':'FRESH';$('dhtPill').className='pill '+(d.dht_stale||d.dht_error?'pill-warn':'pill-safe');
+ $('cloudPill').textContent=d.mqtt_connected?'ADAFRUIT CONNECTED':d.cloud_enabled?'ADAFRUIT DISCONNECTED':'ADAFRUIT DISABLED';
+ $('cloudPill').className='pill '+(d.mqtt_connected?'pill-safe':'pill-warn');
+ $('gpioDetail').textContent='BCM pin map: '+JSON.stringify(d.pins_bcm || {})+' • MQTT: '+d.mqtt_status+(d.mqtt_pending_leds && d.mqtt_pending_leds.length?' • Pending outputs: '+d.mqtt_pending_leds.join(', '):'');
+ $('freshDetail').textContent='Last valid DHT22 sample: '+(d.dht_updated_at||'not received yet');
+ $('thingspeakDetail').textContent='ThingSpeak: '+(d.thingspeak_status||'disabled')+' • Last success: '+(d.thingspeak_last_success_at||'none')+' • Entry ID: '+(d.thingspeak_last_entry_id||'none');
+ $('lastUpdate').textContent='Updated at '+new Date().toLocaleTimeString();
+ seriesT.push(typeof d.temperature==='number'&&!d.dht_stale?d.temperature:null);
+ seriesH.push(typeof d.humidity==='number'&&!d.dht_stale?d.humidity:null);
+ if(seriesT.length>MAX_POINTS)seriesT.shift();if(seriesH.length>MAX_POINTS)seriesH.shift();
+ drawChart();
+}
+function drawChart(){
+ const canvas=$('telemetryChart'),r=canvas.getBoundingClientRect(),ctx=canvas.getContext('2d');if(!r.width||!r.height)return;
+ const scale=window.devicePixelRatio||1;canvas.width=Math.round(r.width*scale);canvas.height=Math.round(r.height*scale);ctx.scale(scale,scale);
+ const w=r.width,h=r.height,left=44,right=16,top=16,bottom=28,ph=h-top-bottom,pw=w-left-right;
+ ctx.strokeStyle='#334155';ctx.fillStyle='#94a3b8';ctx.font='11px sans-serif';ctx.textAlign='right';
+ for(let n=0;n<=4;n++){let y=top+n*ph/4;ctx.beginPath();ctx.moveTo(left,y);ctx.lineTo(w-right,y);ctx.stroke();ctx.fillText(String(100-n*25),left-8,y+4);}
+ const render=(arr,color,max)=>{ctx.strokeStyle=color;ctx.lineWidth=2.2;ctx.beginPath();let started=false;arr.forEach((v,i)=>{if(v===null){started=false;return;}let x=left+(i/(MAX_POINTS-1))*pw,y=top+(1-Math.min(max,Math.max(0,v))/max)*ph;if(!started){ctx.moveTo(x,y);started=true;}else ctx.lineTo(x,y);});ctx.stroke();};
+ render(seriesT,'#fbbf24',100);render(seriesH,'#38bdf8',100);
+}
+function disconnected(message){
+ online=false;controls();$('statusBadge').textContent='DISCONNECTED';
+ for(const key of ['led1','led2']){$(key+'Val').textContent='UNKNOWN';$(key+'Pill').textContent='UNKNOWN';}
+ for(const id of ['irPill','flamePill','dhtPill','cloudPill']){$(id).className='pill pill-warn';$(id).textContent='UNKNOWN';}
+ $('irVal').textContent='UNAVAILABLE';$('flameVal').textContent='UNAVAILABLE';
+ $('tempVal').textContent='— °C';$('humVal').textContent='— %';
+ $('thingspeakDetail').textContent='ThingSpeak: gateway unreachable; current status unknown';
+ $('notice').textContent=message;
+}
+async function refresh(){try{let r=await fetch('/api/state',{cache:'no-store',signal:AbortSignal.timeout(5000)});if(!r.ok)throw Error('HTTP '+r.status);show(await r.json());}catch(e){disconnected('Cannot connect: '+e.message);}}
+async function command(name,on){
+ const r=await fetch('/api/led/'+name,{method:'POST',signal:AbortSignal.timeout(5000),headers:{'Content-Type':'application/json','X-Dashboard-Token':$('token').value},body:JSON.stringify({on})});
+ const d=await r.json();if(!r.ok)throw Error(d.error||'Command failed');
+ $('notice').textContent=name.toUpperCase()+' '+(d.on?'ON':'OFF');
+}
+async function setLED(name,on){if(busy||!online)return;busy=true;controls();try{await command(name,on);}catch(e){$('notice').textContent=e.message;}finally{await refresh();busy=false;controls();}}
+function toggleLED(name){if(typeof current[name]==='boolean')setLED(name,!current[name]);}
+async function setBoth(on){if(busy||!online)return;busy=true;controls();try{await command('led1',on);await command('led2',on);}catch(e){$('notice').textContent='Both-output command incomplete: '+e.message;}finally{await refresh();busy=false;controls();}}
+async function poll(){await refresh();setTimeout(poll,1500);}
+controls();poll();window.addEventListener('resize',drawChart);
+</script></body></html>
